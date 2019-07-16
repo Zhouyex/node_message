@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>信息管理</title>
+    <style>
+        *{margin: 0; padding: 0;}
+        .box{ width: 400px;
+            border: 1px solid #1c1b21;
+            margin:50px auto;
+            position: relative;
+            padding: 30px}
+
+        .box>h3{ position: absolute;
+            top:-14px;
+            left:20px;
+            background: #fff;
+            padding: 0 10px;
+        }
+        .box>div{
+            padding: 10px 0;
+        }
+        .box>div input{
+            width: 200px;
+            height:40px;
+        }
+        .btn{
+            width: 100px;
+            height:40px;
+            font-size: 20px;
+            margin-left: 148px;
+        }
+
+        .shadow{
+            width:100%;
+            height: 500px;
+            background-color: rgba(0,0,0,.5);
+            position: absolute;
+            left: 0;
+            top:0;
+            display: none;
+        }
+        .changes{
+            /*font-size: 20px;*/
+            width: 50px;
+            margin-left: 20px;
+        }
+        .del{
+            width: 50px;
+        }
+    </style>
+    <script src="./js/jquery.min.js"></script>
+</head>
+<body>
+    <div class="box">
+        <h3>信息录入</h3>
+        <div>
+            <label>姓名：<input type="text" name="name" placeholder="请输入姓名"></label>
+        </div>
+        <div>
+            <label for="age">年龄：</label><input id="age" type="text" name="age" placeholder="请输入年龄">
+        </div>
+        <div>
+            <label>备注：<input type="text" name="remk" placeholder="备注"></label>
+        </div>
+        <button class="btn">提交信息</button>
+    </div>
+    <div class="box">
+        <h3>信息展示</h3>
+        <table width="100%" border="1" cellpadding="0" cellspacing="0">
+            <tr>
+                <th>序号</th>
+                <th>姓名</th>
+                <th>年龄</th>
+                <th>备注</th>
+                <th>操作</th>
+            </tr>
+        </table>
+    </div>
+
+    <div class="shadow">
+        <div class="box box2">
+            <h3>更新信息</h3>
+            <div>
+                <label>姓名：<input type="text" name="name" ></label>
+            </div>
+            <div>
+                <label for="age">年龄：</label><input  type="text" name="age" >
+            </div>
+            <div>
+                <label>备注：<input type="text" name="remk" ></label>
+            </div>
+            <button class="updata">更新信息</button>
+        </div>
+    </div>
+
+
+    <script>
+        $(function(){
+            //查找内容
+            getData();
+            function getData() {
+                $.ajax({
+                    url:'http://127.0.0.1/find',
+                    success(res){
+                        console.log(res.result)
+                        var data = res.result
+                        var tr=""
+                        for(let i=0;i<data.length;i++){
+                             tr += "<tr><td>"+(i+1)+"</td><td>"+data[i].name+"</td><td>"+data[i].age+"</td><td>"+data[i].remk+"</td><td><button class='changes'>修改</button> <button class='del' dataId = "+data[i]._id+">删除</button></td></tr>"
+                        }
+                        $('table').append(tr)
+                    }
+                })
+            }
+            //添加内容
+            $('.btn').click(function(){
+                var name = $('input').eq(0).val()
+                var age = $('input').eq(1).val()
+                var remk = $('input').eq(2).val()
+                $.ajax({
+                    url:'http://127.0.0.1/add',
+                    //提交处理跨域问题
+                    data:{
+                        name,
+                        age,
+                        remk
+                    },
+                    success(res){
+                        if(res.ok){
+                            alert(res.msg)
+                        }else{
+                            alert(res.msg)
+                        }
+                        $('input').eq(0).val('')
+                        $('input').eq(1).val('')
+                        $('input').eq(2).val('')
+                        window.location.reload()  //刷新页面
+                    }
+                })
+            });
+
+            $('table').on('click','.del',function () {
+
+                // console.log(this);
+                // console.log($(this).attr('dataId'));
+                var _id = $(this).attr('dataId');
+                $.ajax({
+                    url:'http://127.0.0.1/del',
+                    data:{
+                        _id,
+
+
+                    },
+                    success(res){
+                        if(res.ok){
+                            alert(res.msg)
+                        }else{
+                            alert(res.msg)
+                        }
+
+                        window.location.reload()  //刷新页面
+
+                    }
+
+                })
+
+            });
+
+
+        //修改
+        $('table').on('click','.changes',function () {
+            // console.log(1)
+            $('.shadow').show();
+        });
+
+
+        $('.updata').click(function () {
+             // console.log(1);
+             $('.shadow').hide();
+
+        })
+
+
+
+
+
+        })
+
+
+    </script>
+</body>
+</html>
